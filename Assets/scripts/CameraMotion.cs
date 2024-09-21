@@ -7,8 +7,8 @@ using UnityEngine;
 public class CameraMotion : MonoBehaviour {
     int max_plane = -1; // the number of planes that we have made
     int min_plane = 1;
-    int right_plane = 0;
-    int left_plane = 0;
+    // int right_plane = 0;
+    // int left_plane = 0;
     float plane_size = 3.0f; // the size of the planes
     
     void Start () {
@@ -57,12 +57,12 @@ public class CameraMotion : MonoBehaviour {
             create_new_plane(1);
         }
 
-        if (cam_pos.x > (right_plane + 0.5) * plane_size * 2) {
-            create_new_plane(2);
-        }
-        if (cam_pos.x < (left_plane - 0.5) * plane_size * 2) {
-            create_new_plane(3);
-        }
+        // if (cam_pos.x > (right_plane + 0.5) * plane_size * 2) {
+        //     create_new_plane(2);
+        // }
+        // if (cam_pos.x < (left_plane - 0.5) * plane_size * 2) {
+        //     create_new_plane(3);
+        // }
 
     }
     
@@ -77,8 +77,8 @@ public class CameraMotion : MonoBehaviour {
         if (dir == 0) index = max_plane + 1;
         else if (dir == 1) index = min_plane - 1;
 
-        if (dir == 2) index = right_plane + 1;
-        else if (dir == 3) index = left_plane - 1;
+        // if (dir == 2) index = right_plane + 1;
+        // else if (dir == 3) index = left_plane - 1;
 
         float plane_scale = plane_size / 5.0f;
         
@@ -102,8 +102,8 @@ public class CameraMotion : MonoBehaviour {
         if (dir == 0) temp = max_plane;
         else if (dir == 1) temp = min_plane;
         
-        else if (dir == 2) temp = left_plane;
-        else if (dir == 3) temp = right_plane;
+        // else if (dir == 2) temp = left_plane;
+        // else if (dir == 3) temp = right_plane;
 
         if (temp % 2 == 0)
             rend.material.color = new Color (0.2f, 0.2f, 0.7f, 1.0f);
@@ -114,7 +114,7 @@ public class CameraMotion : MonoBehaviour {
         if (dir == 0) max_plane++;
         else if (dir == 1) min_plane--;
 
-        else if (dir == 2) left_plane--;
-        else if (dir == 3) right_plane++;
+        // else if (dir == 2) left_plane--;
+        // else if (dir == 3) right_plane++;
     }
 }
