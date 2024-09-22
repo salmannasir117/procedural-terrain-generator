@@ -65,8 +65,10 @@ public class MeshGenerator : MonoBehaviour
 
         mesh.vertices = verts;
         mesh.triangles = tris;
-        // mesh.colors = colors;
-        mesh.SetColors(colors);
+
+        // Renderer rend = 
+        mesh.colors = colors;
+        // mesh.SetColors(colors);
         mesh.RecalculateNormals();
 
         return mesh;
@@ -77,15 +79,21 @@ public class MeshGenerator : MonoBehaviour
         GameObject s = new GameObject("temp name");
         s.AddComponent<MeshFilter>();
         s.AddComponent<MeshRenderer>();
-
+        
         // associate the mesh with this object
         s.GetComponent<MeshFilter>().mesh = mesh;
 
         // change the color of the object
+        //get the renderer, attach a material that uses a vertex shader 
+        //thus, we can color each vertex and it mixes the colors. 
+
         Renderer rend = s.GetComponent<Renderer>();
+        Material material = new Material(Shader.Find("Particles/Standard Surface"));
+        rend.material = material;
+
         // // random color
         // rend.material.color = new Color(Random.value, Random.value, Random.value, 1.0f);
-        rend.material.color = new Color(0,0,1);
+        // rend.material.color = new Color(0,0,1);
         return s;
     }
 
@@ -109,11 +117,15 @@ public class MeshGenerator : MonoBehaviour
         return Mathf.PerlinNoise(x, y) + 2 * Mathf.PerlinNoise(2 * x, 2 * y) + 4 * Mathf.PerlinNoise( 4 * x, 4 * y);
     }
 
+    //for some reason, the heights are super high. this is wehre we assign color based on height
+    //this allows us to create mountains, rivers, etc. coloring based on height
     Color get_color(float x) {
-        if (x > 0.7) return Color.black;
-        else return Color.black;
-        // else if (x > 0.5) return Color.black;
-        // else return Color.black;
+        
+        //spooky coloring below
+        if (x > 10) return Color.white;
+        else if (x  > 2.5) return new Color(25, 25, 25) / 255.0f;   //dark grey
+        else if (x > 0.5) return Color.red;
+        else return Color.green;
     }
     // make a triangle from three vertex indices (clockwise order)
 	void MakeTri(int i1, int i2, int i3, int ntris, int [] tris) {
