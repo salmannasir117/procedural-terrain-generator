@@ -2,11 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 public class TexturedMesh : MonoBehaviour {
     public int texture_width = 64;
     public int texture_height = 64;
     public float scale = 10;
     
+    public bool walk = false;
     // create a quad that is textured
     void Start () {
         // call the routine that makes a cube from scratch
@@ -102,5 +104,10 @@ public class TexturedMesh : MonoBehaviour {
     
     // update is called once per frame
     void Update () {
+        if (walk) {
+            int x = 0;
+            float cam_pos = Camera.main.transform.position.y;
+            Camera.main.transform.Translate(0, x, 0);
+        }
     }
 }

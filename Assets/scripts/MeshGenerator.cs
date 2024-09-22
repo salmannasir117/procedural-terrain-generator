@@ -6,7 +6,7 @@ public class MeshGenerator : MonoBehaviour
 {
     int x_offset = 1000, y_offset = 1000; 
     private int grid_verts_per_side = 85;
-    private float grid_size = 100;
+    private float grid_size = 10;
     
     // Start is called before the first frame update
     void Start()
@@ -36,7 +36,7 @@ public class MeshGenerator : MonoBehaviour
                 float y_index = grid_size / grid_verts_per_side * j;
                 // verts[vert_index] = new Vector3(x_index, y_index, 0);
                 
-                float noise = get_perlin_noise(x_index, y_index);
+                float noise = get_perlin_noise(x_index, y_index, x_offset, y_offset);
                 verts[vert_index] = new Vector3(x_index, noise, y_index);
                 colors[vert_index] = get_color(noise);
             }
@@ -97,24 +97,26 @@ public class MeshGenerator : MonoBehaviour
         return s;
     }
 
-    void perlin_noise(Mesh mesh, int grid_verts_per_side, float grid_size, int x_world_offset, int y_world_offset) {
-        for (int i = 0; i < grid_verts_per_side; i++) {
-            for (int j = 0; j < grid_verts_per_side; j++) {
-                float x = grid_size / grid_verts_per_side * i + x_world_offset + x_offset;
-                float y = grid_size / grid_verts_per_side * j + y_world_offset + y_offset; 
+    // void perlin_noise(Mesh mesh, int grid_verts_per_side, float grid_size, int x_world_offset, int y_world_offset) {
+    //     for (int i = 0; i < grid_verts_per_side; i++) {
+    //         for (int j = 0; j < grid_verts_per_side; j++) {
+    //             float x = grid_size / grid_verts_per_side * i + x_world_offset + x_offset;
+    //             float y = grid_size / grid_verts_per_side * j + y_world_offset + y_offset; 
                 
-                mesh.vertices[i * grid_verts_per_side + j].x = 
-                    Mathf.PerlinNoise(x, y)
-                    + 1.0f / 2 * Mathf.PerlinNoise(2 * x, 2 * y)
-                    + 1.0f / 4 * Mathf.PerlinNoise(4 * x, 4 * y);
+    //             mesh.vertices[i * grid_verts_per_side + j].x = 
+    //                 Mathf.PerlinNoise(x, y)
+    //                 + 1.0f / 2 * Mathf.PerlinNoise(2 * x, 2 * y)
+    //                 + 1.0f / 4 * Mathf.PerlinNoise(4 * x, 4 * y);
 
-            }
-        }
-        mesh.RecalculateNormals();
-    }
+    //         }
+    //     }
+    //     mesh.RecalculateNormals();
+    // }
 
-    float get_perlin_noise(float x, float y) {
-        return Mathf.PerlinNoise(x, y) + 2 * Mathf.PerlinNoise(2 * x, 2 * y) + 4 * Mathf.PerlinNoise( 4 * x, 4 * y);
+    float get_perlin_noise(float x, float y, float x_offset, float y_offset) {
+        return Mathf.PerlinNoise(x + x_offset , y + y_offset) 
+        + 1.0f / 2 * Mathf.PerlinNoise(2 * x + x_offset, 2 * y + y_offset) 
+        + 1.0f / 4 * Mathf.PerlinNoise( 4 * x + x_offset, 4 * y + y_offset);
     }
 
     //for some reason, the heights are super high. this is wehre we assign color based on height
@@ -122,9 +124,9 @@ public class MeshGenerator : MonoBehaviour
     Color get_color(float x) {
         
         //spooky coloring below
-        if (x > 10) return Color.white;
-        else if (x  > 2.5) return new Color(25, 25, 25) / 255.0f;   //dark grey
-        else if (x > 0.5) return Color.red;
+        if (x > 10.0f / 10) return Color.white;
+        else if (x  > 2.5 / 10.0f) return new Color(25, 25, 25) / 255.0f;   //dark grey
+        else if (x > 0.5 /10.0f) return Color.red;
         else return Color.green;
     }
     // make a triangle from three vertex indices (clockwise order)
