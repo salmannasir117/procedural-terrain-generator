@@ -25,54 +25,56 @@ public class CameraMotion : MonoBehaviour {
     }
     
     // move the camera, and perhaps create a new plane
-    // void Update () {
+    void Update () {
         
-    //     // get the horizontal and vertical controls (arrows, or WASD keys)
-    //     float dx = Input.GetAxis ("Horizontal");
-    //     float dz = Input.GetAxis ("Vertical");
+        // get the horizontal and vertical controls (arrows, or WASD keys)
+        float dx = Input.GetAxis ("Horizontal");
+        float dz = Input.GetAxis ("Vertical");
         
-    //     // sensitivity factors for translate and rotate
-    //     //originally 0.3f and 5.0f
-    //     float translate_factor = 0.03f;
-    //     float rotate_factor = .50f;
+        // sensitivity factors for translate and rotate
+        //originally 0.3f and 5.0f
+        float translate_factor = 0.03f;
+        float rotate_factor = .50f;
         
-    //     // translate_factor *= 10;
-    //     // rotate_factor *= 10;
+        // translate_factor *= 10;
+        // rotate_factor *= 10;
 
-    //     Camera temp = Camera.main;
-    //     // Camera temp = Camera.current;
-    //     // originally, temp = Camera.current;
-    //     // Camera.main works but is super sensitive 
+        Camera temp = Camera.main;
+        // Camera temp = Camera.current;
+        // originally, temp = Camera.current;
+        // Camera.main works but is super sensitive 
 
-    //     // move the camera based on keyboard input
-    //     if (temp != null) {
-    //         // translate forward or backwards
-    //         temp.transform.Translate (0, 0, dz * translate_factor);
-    //         // rotate left or right
-    //         temp.transform.Rotate (0, dx * rotate_factor, 0);
-    //     }
+        // move the camera based on keyboard input
+        if (temp != null) {
+            // translate forward or backwards
+            temp.transform.Translate (0, 0, dz * translate_factor);
+            // rotate left or right
+            temp.transform.Rotate (0, dx * rotate_factor, 0);
+        }
         
-    //     // get the main camera position
-    //     Vector3 cam_pos = Camera.main.transform.position;
+        // get the main camera position
+        Vector3 cam_pos = Camera.main.transform.position;
         
-    //     //Debug.LogFormat ("x z: {0} {1}", cam_pos.x, cam_pos.z);
+        //Debug.LogFormat ("x z: {0} {1}", cam_pos.x, cam_pos.z);
         
-    //     // if the camera has moved far enough, create another plane
-    //     if (cam_pos.z > (max_plane + 0.5) * plane_size * 2) {
-    //         create_new_plane(0);
-    //     }
-    //     if (cam_pos.z < (min_plane - 0.5) * plane_size * 2) {
-    //         create_new_plane(1);
-    //     }
+        // if the camera has moved far enough, create another plane
+        // if (cam_pos.z > (max_plane + 0.5) * plane_size * 2) {
+        //     // create_new_plane(0);
+        //     mesh_to_game_object(create_plane(grid_size, grid_verts_per_side));
+        // }
+        // if (cam_pos.z < (min_plane - 0.5) * plane_size * 2) {
+        //     // create_new_plane(1);
+        //     mesh_to_game_object(create_plane(grid_size, grid_verts_per_side));
+        // }
 
-    //     // if (cam_pos.x > (right_plane + 0.5) * plane_size * 2) {
-    //     //     create_new_plane(2);
-    //     // }
-    //     // if (cam_pos.x < (left_plane - 0.5) * plane_size * 2) {
-    //     //     create_new_plane(3);
-    //     // }
+        // if (cam_pos.x > (right_plane + 0.5) * plane_size * 2) {
+        //     create_new_plane(2);
+        // }
+        // if (cam_pos.x < (left_plane - 0.5) * plane_size * 2) {
+        //     create_new_plane(3);
+        // }
 
-    // }
+    }
     
     // create a new plane
     //int dir:
