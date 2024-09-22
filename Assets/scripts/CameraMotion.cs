@@ -13,7 +13,7 @@ public class CameraMotion : MonoBehaviour {
 
     int x_offset = 1000, y_offset = 1000; 
     private int grid_verts_per_side = 85;
-    private float grid_size = 10;
+    private float grid_size = 100;
 
     
     void Start () {
@@ -21,7 +21,9 @@ public class CameraMotion : MonoBehaviour {
         // create_new_plane(0);
 
         Mesh m = create_plane(grid_size, grid_verts_per_side);
+        // perlin_noise(m, grid_verts_per_side, grid_size, 0, 0);
         mesh_to_game_object(m);
+        
     }
     
     // move the camera, and perhaps create a new plane
@@ -141,7 +143,7 @@ public class CameraMotion : MonoBehaviour {
                 float y_index = grid_size / grid_verts_per_side * j;
                 // verts[vert_index] = new Vector3(x_index, y_index, 0);
 
-                verts[vert_index] = new Vector3(x_index, 0, y_index);
+                verts[vert_index] = new Vector3(x_index, get_perlin_noise(x_index, y_index), y_index);
             }
         }
 
@@ -190,6 +192,25 @@ public class CameraMotion : MonoBehaviour {
         return s;
     }
 
+    void perlin_noise(Mesh mesh, int grid_verts_per_side, float grid_size, int x_world_offset, int y_world_offset) {
+        for (int i = 0; i < grid_verts_per_side; i++) {
+            for (int j = 0; j < grid_verts_per_side; j++) {
+                float x = grid_size / grid_verts_per_side * i + x_world_offset + x_offset;
+                float y = grid_size / grid_verts_per_side * j + y_world_offset + y_offset; 
+                
+                mesh.vertices[i * grid_verts_per_side + j].x = 
+                    Mathf.PerlinNoise(x, y)
+                    + 1.0f / 2 * Mathf.PerlinNoise(2 * x, 2 * y)
+                    + 1.0f / 4 * Mathf.PerlinNoise(4 * x, 4 * y);
+
+            }
+        }
+        mesh.RecalculateNormals();
+    }
+
+    float get_perlin_noise(float x, float y) {
+        return Mathf.PerlinNoise(x, y) + 2 * Mathf.PerlinNoise(2 * x, 2 * y) + 4 * Mathf.PerlinNoise( 4 * x, 4 * y);
+    }
     // make a triangle from three vertex indices (clockwise order)
 	void MakeTri(int i1, int i2, int i3, int ntris, int [] tris) {
 		int index = ntris * 3;  // figure out the base index for storing triangle indices
