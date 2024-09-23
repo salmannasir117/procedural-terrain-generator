@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Security;
 using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class MeshGenerator : MonoBehaviour
 {
@@ -16,17 +17,20 @@ public class MeshGenerator : MonoBehaviour
         Texture2D,
         snowy,
         sandy,
-        greyscale
+        greyscale,
+        greenland
     }
     public Terrain terrain_selction = Terrain.snowy;
 
     //https://docs.unity3d.com/Manual/InstantiatingPrefabs.html
-    public GameObject flower_prefab = null;
-    public GameObject tree_prefab = null;
-    public GameObject cactus_prefab = null;
-    public GameObject small_cactus_prefab = null;
-    public GameObject greyscale_flower_prefab = null;
-    public GameObject greyscale_tree_prefab = null;
+    
+    //Texture2D/snowy biome plants
+    public GameObject flower_prefab = null, tree_prefab = null;
+    //sany biome plants
+    public GameObject cactus_prefab = null, small_cactus_prefab = null;
+    //greyscale plants
+    public GameObject greyscale_flower_prefab = null, greyscale_tree_prefab = null;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -41,10 +45,15 @@ public class MeshGenerator : MonoBehaviour
         
     }
 
+    //method used to place plants based on the selected terrain mode.
+    //each terrain has a "high plant" which is placed in high locations of the biome 
+    //and a "low plant" placed low in the biome.
     private void place_plant(float x_index, float noise, float y_index) {
         GameObject low_plant = null, high_plant = null;
-        float offset = 0.05f;
-        if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D) {
+        float offset = 0.05f;   //offset used to raise the plants to ground level.
+        
+        // set the low and high plants based on the biome selected
+        if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D || terrain_selction == Terrain.greenland) {
             low_plant = flower_prefab;
             high_plant = tree_prefab;
         } else if (terrain_selction == Terrain.sandy) {
@@ -55,38 +64,13 @@ public class MeshGenerator : MonoBehaviour
             high_plant = greyscale_tree_prefab;
         }
 
+        //make sure height is withing low plant bounds, place with certain probability
+        //make sure height is within high plant bounds, place with certain probability
         if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
             Instantiate(low_plant, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
         } else if (noise > 1 && Random.value < 0.01) {
            Instantiate(high_plant, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
         }
-
-        //place plants with grassland plants
-        // if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D) {
-        //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
-        //         float offset = 0.05f;
-        //         Instantiate(flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-        //     } else if (noise > 1 && Random.value < 0.01) {
-        //         float offset = 0.05f;
-        //         Instantiate(tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-        //     }
-        // } else if (terrain_selction == Terrain.sandy) {
-        //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
-        //         float offset = 0.05f;
-        //         Instantiate(small_cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-        //     } else if (noise > 1 && Random.value < 0.01) {
-        //         float offset = 0.05f;
-        //         Instantiate(cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-        //     }
-        // } else if (terrain_selction == Terrain.greyscale) {
-        //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
-        //         float offset = 0.05f;
-        //         Instantiate(greyscale_flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-        //     } else if (noise > 1 && Random.value < 0.01) {
-        //         float offset = 0.05f;
-        //         Instantiate(greyscale_tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-        //     }
-        // }
     }
     private Mesh create_plane(float grid_size, int grid_verts_per_side) {
         Vector3[] verts = new Vector3[grid_verts_per_side * grid_verts_per_side];  	// the vertices of the mesh
@@ -109,33 +93,6 @@ public class MeshGenerator : MonoBehaviour
                 
                 float noise = get_perlin_noise(x_index, y_index, x_offset, y_offset);
                 
-                //place plants with grassland plants
-                // if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D) {
-                //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
-                //         float offset = 0.05f;
-                //         Instantiate(flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                //     } else if (noise > 1 && Random.value < 0.01) {
-                //         float offset = 0.05f;
-                //         Instantiate(tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                //     }
-                // } else if (terrain_selction == Terrain.sandy) {
-                //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
-                //         float offset = 0.05f;
-                //         Instantiate(small_cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                //     } else if (noise > 1 && Random.value < 0.01) {
-                //         float offset = 0.05f;
-                //         Instantiate(cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                //     }
-                // } else if (terrain_selction == Terrain.greyscale) {
-                //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
-                //         float offset = 0.05f;
-                //         Instantiate(greyscale_flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                //     } else if (noise > 1 && Random.value < 0.01) {
-                //         float offset = 0.05f;
-                //         Instantiate(greyscale_tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                //     }
-                // }
-
                 place_plant(x_index, noise, y_index);
                 verts[vert_index] = new Vector3(x_index, noise, y_index);
                 uvs[vert_index] = new Vector2(x_index / grid_size, (grid_size - y_index) / grid_size);
@@ -149,12 +106,6 @@ public class MeshGenerator : MonoBehaviour
         }
 
         int ntris = 0;
-        // for (int i = 0; i < grid_verts_per_side - 1; i++) {
-        //     for (int j = 0; j < grid_verts_per_side - 1; j++) {
-        //         MakeQuad(i, j, i + grid_verts_per_side, j + grid_verts_per_side, ntris, tris);
-        //         ntris += 2;
-        //     }
-        // }
         for (int i = 0; i < verts.Length - 1 - grid_verts_per_side - 1; i++) {
             if (i % (grid_verts_per_side) != grid_verts_per_side - 1 || i == 0) {
                 int tl, tr, bl, br;
@@ -198,15 +149,15 @@ public class MeshGenerator : MonoBehaviour
         //get the renderer, attach a material that uses a vertex shader 
         //thus, we can color each vertex and it mixes the colors. 
         //note: this method is an alternative to using a texture 2D and potentially allows for a different gradient of colors to be made
-        if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.sandy || terrain_selction == Terrain.greyscale) {
-            Material material = new Material(Shader.Find("Particles/Standard Surface"));
-            rend.material = material;
-        }
-        else if (terrain_selction == Terrain.Texture2D) {
+        if (terrain_selction == Terrain.Texture2D) {
             Texture2D texture = make_a_texture(mesh);
             // rend.material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
             rend.material.mainTexture = texture;
-        } 
+        } else {
+            Material material = new Material(Shader.Find("Particles/Standard Surface"));
+            rend.material = material;
+        }
+       
         // // random color
         // rend.material.color = new Color(Random.value, Random.value, Random.value, 1.0f);
         // rend.material.color = new Color(0,0,1);
@@ -253,6 +204,18 @@ public class MeshGenerator : MonoBehaviour
             // x -= 0.4f;
             x = 1 - x;
             return new Color(x,x,x);
+        } else if (terrain_selction == Terrain.greenland) {
+            // Color brown = new Color(168, 81, 3) / 255.0f;
+            Color brown = new Color(101, 78, 44) / 255.0f;
+            // Color green = new Color(99, 180, 0) / 255.0f;
+            Color green = new Color(19,109,21) / 255.0f;
+            Color blue  = new Color(62,164,240) / 255.0f;
+            // return Color.Lerp(brown, green, x - 0.3f);    
+
+            if (x > 0.7f) return green;
+            if (x > 0.45f) return brown;
+            else return blue;
+
         }
         return Color.clear; //error case
     }
