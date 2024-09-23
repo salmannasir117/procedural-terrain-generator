@@ -1,4 +1,5 @@
 // using System;
+// using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security;
@@ -13,13 +14,16 @@ public class MeshGenerator : MonoBehaviour
     
     public enum Terrain {
         Texture2D,
-        snowy
+        snowy,
+        sandy
     }
     public Terrain terrain_selction = Terrain.snowy;
 
     //https://docs.unity3d.com/Manual/InstantiatingPrefabs.html
     public GameObject flower_prefab = null;
     public GameObject tree_prefab = null;
+    public GameObject cactus_prefab = null;
+    public GameObject small_cactus_prefab = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -55,14 +59,24 @@ public class MeshGenerator : MonoBehaviour
                 
                 float noise = get_perlin_noise(x_index, y_index, x_offset, y_offset);
                 
-                if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
-                    float offset = 0.05f;
-                    Instantiate(flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                } else if (noise > 1 && Random.value < 0.01) {
-                    float offset = 0.05f;
-                    Instantiate(tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                //place plants with grassland plants
+                if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D) {
+                    if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+                        float offset = 0.05f;
+                        Instantiate(flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                    } else if (noise > 1 && Random.value < 0.01) {
+                        float offset = 0.05f;
+                        Instantiate(tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                    }
+                } else if (terrain_selction == Terrain.sandy) {
+                    if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+                        float offset = 0.05f;
+                        Instantiate(small_cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                    } else if (noise > 1 && Random.value < 0.01) {
+                        float offset = 0.05f;
+                        Instantiate(cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                    }
                 }
-
                 verts[vert_index] = new Vector3(x_index, noise, y_index);
                 uvs[vert_index] = new Vector2(x_index / grid_size, (grid_size - y_index) / grid_size);
                 
@@ -125,7 +139,7 @@ public class MeshGenerator : MonoBehaviour
         //get the renderer, attach a material that uses a vertex shader 
         //thus, we can color each vertex and it mixes the colors. 
         //note: this method is an alternative to using a texture 2D and potentially allows for a different gradient of colors to be made
-        if (terrain_selction == Terrain.snowy) {
+        if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.sandy) {
             Material material = new Material(Shader.Find("Particles/Standard Surface"));
             rend.material = material;
         }
@@ -167,10 +181,17 @@ public class MeshGenerator : MonoBehaviour
     Color get_color(float x) {
         
         //spooky coloring below
-        if (x > 10.0f / 10) return Color.white;
-        else if (x  > 2.5 / 10.0f) return new Color(25, 25, 25) / 255.0f;   //dark grey
-        else if (x > 0.5 /10.0f) return Color.red;
-        else return Color.green;
+        if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D) {
+            if (x > 10.0f / 10) return Color.white;
+            else if (x  > 2.5 / 10.0f) return new Color(25, 25, 25) / 255.0f;   //dark grey
+            else if (x > 0.5 /10.0f) return Color.red;
+            else return Color.green;
+        } else if (terrain_selction == Terrain.sandy) {     //sand biome
+            Color low = new Color(150, 114, 22) / 255.0f;
+            Color high = new Color(228, 214, 172) / 255.0f;
+            return Color.Lerp(low, high, x - 0.3f);
+        }
+        return Color.clear; //error case
     }
     // make a triangle from three vertex indices (clockwise order)
 	void MakeTri(int i1, int i2, int i3, int ntris, int [] tris) {
