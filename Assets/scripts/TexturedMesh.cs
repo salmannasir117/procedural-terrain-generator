@@ -10,6 +10,8 @@ public class TexturedMesh : MonoBehaviour {
     
     public bool walk = false;
     // create a quad that is textured
+
+    
     void Start () {
         // call the routine that makes a cube from scratch
         Mesh my_mesh = CreateMyMesh();

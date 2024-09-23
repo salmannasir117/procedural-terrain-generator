@@ -1,5 +1,8 @@
+// using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security;
+using System.Security.Cryptography;
 using UnityEngine;
 
 public class MeshGenerator : MonoBehaviour
@@ -8,6 +11,15 @@ public class MeshGenerator : MonoBehaviour
     private int grid_verts_per_side = 85;
     private float grid_size = 10;
     
+    public enum Terrain {
+        Texture2D,
+        snowy
+    }
+    public Terrain terrain_selction = Terrain.snowy;
+
+    //https://docs.unity3d.com/Manual/InstantiatingPrefabs.html
+    public GameObject flower_prefab = null;
+    public GameObject tree_prefab = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -26,7 +38,12 @@ public class MeshGenerator : MonoBehaviour
         Vector3[] verts = new Vector3[grid_verts_per_side * grid_verts_per_side];  	// the vertices of the mesh
 	    int[] tris = new int[(2 * (grid_verts_per_side - 1) * (grid_verts_per_side - 1)) * 3];      	// the triangles of the mesh (triplets of integer references to vertices)
 	    Mesh mesh = new Mesh();
-        Color[] colors = new Color[verts.Length];
+        Color[] colors = null;
+        Vector2[] uvs = new Vector2[verts.Length];
+
+        // if (terrain_selction == Terrain.snowy) {
+            colors = new Color[verts.Length];
+        // }
 
         //generate the verticies for the plane
         for (int i = 0; i < grid_verts_per_side ; i++) {
@@ -37,8 +54,24 @@ public class MeshGenerator : MonoBehaviour
                 // verts[vert_index] = new Vector3(x_index, y_index, 0);
                 
                 float noise = get_perlin_noise(x_index, y_index, x_offset, y_offset);
+                
+                if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+                    float offset = 0.05f;
+                    Instantiate(flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                } else if (noise > 1 && Random.value < 0.01) {
+                    float offset = 0.05f;
+                    Instantiate(tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                }
+
                 verts[vert_index] = new Vector3(x_index, noise, y_index);
-                colors[vert_index] = get_color(noise);
+                uvs[vert_index] = new Vector2(x_index / grid_size, (grid_size - y_index) / grid_size);
+                
+                // if (terrain_selction == Terrain.snowy) {
+                    colors[vert_index] = get_color(noise);
+                // }
+
+
+                //else, colors is handled in the texture generation part. 
             }
         }
 
@@ -66,6 +99,8 @@ public class MeshGenerator : MonoBehaviour
         mesh.vertices = verts;
         mesh.triangles = tris;
 
+        mesh.uv = uvs;
+
         // Renderer rend = 
         mesh.colors = colors;
         // mesh.SetColors(colors);
@@ -84,13 +119,21 @@ public class MeshGenerator : MonoBehaviour
         s.GetComponent<MeshFilter>().mesh = mesh;
 
         // change the color of the object
+        
+        Renderer rend = s.GetComponent<Renderer>();
+
         //get the renderer, attach a material that uses a vertex shader 
         //thus, we can color each vertex and it mixes the colors. 
-
-        Renderer rend = s.GetComponent<Renderer>();
-        Material material = new Material(Shader.Find("Particles/Standard Surface"));
-        rend.material = material;
-
+        //note: this method is an alternative to using a texture 2D and potentially allows for a different gradient of colors to be made
+        if (terrain_selction == Terrain.snowy) {
+            Material material = new Material(Shader.Find("Particles/Standard Surface"));
+            rend.material = material;
+        }
+        else if (terrain_selction == Terrain.Texture2D) {
+            Texture2D texture = make_a_texture(mesh);
+            // rend.material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
+            rend.material.mainTexture = texture;
+        }
         // // random color
         // rend.material.color = new Color(Random.value, Random.value, Random.value, 1.0f);
         // rend.material.color = new Color(0,0,1);
@@ -144,4 +187,63 @@ public class MeshGenerator : MonoBehaviour
 		MakeTri (i1, i2, i3, ntris, tris);
 		MakeTri (i1, i3, i4, ntris + 1, tris);
 	}
+
+    Color get_color_new(float x) {
+        
+        //spooky coloring below
+        // if (x > 10.0f / 10) return Color.white;
+        // else if (x  > 2.5 / 10.0f) return new Color(25, 25, 25) / 255.0f;   //dark grey
+        // else if (x > 0.5 /10.0f) return Color.red;
+        // else return Color.green;
+        if (x > 0.75) return Color.red;
+        else return Color.blue;
+    }
+    Texture2D make_a_texture(Mesh mesh) {
+        int len = grid_verts_per_side;
+        // Vector2[] uv = new Vector2[4];
+        // uv[0] = new Vector2(len, 0);
+        // uv[1] = new Vector2(len, len);
+        // uv[2] = new Vector2(0, len);
+        // uv[3] = new Vector2(0, 0);
+        // uv[0] = new Vector2(grid_size, 0);
+        // uv[1] = new Vector2(grid_size, grid_size);
+        // uv[2] = new Vector2(0, grid_size);
+        // uv[3] = new Vector2(0, 0);
+        // mesh.uv = uv;
+        // mesh.RecalculateNormals();
+
+;
+        Vector3[] vertices = mesh.vertices;
+        Vector2[] uvs = new Vector2[vertices.Length];
+        Texture2D texture = new Texture2D(len, len);
+        // Color[] colors = new Color[len * len];
+
+        for (int i = 0; i < uvs.Length; i++)
+        {
+            uvs[i] = new Vector2((vertices[i].x) / grid_size, (grid_size - vertices[i].z) / grid_size);
+            // colors[i] = get_color(vertices[i].y);
+        }
+        // mesh.uv = uvs;
+        // mesh.RecalculateNormals();
+
+       
+    //    for (int i = 0; i < len; i++) {
+    //         for (int j = len - 1; j >= 0; j--) {
+    //             colors[i * len + (len - 1 - j)] = get_color(mesh.vertices[i * len + j].y);
+    //         }
+    //     }
+        // for (int i = 0; i < len; i++) {
+        //     for (int j = 0; j < len; j++) {
+        //         float t = mesh.vertices[i * len + j].y;
+        //         // colors [i * len + j] = get_color_new(mesh.vertices[i * len + j].y);
+        //         // colors[i * len + j] = new Color(t, t, t);
+        //         // colors[j * len + i] = get_color(mesh.vertices[j * len + i].y);
+        //         colors[i * len + j] = get_color(mesh.vertices[i * len + j].y);
+        //     }
+        // }
+
+        texture.SetPixels(mesh.colors);
+        texture.Apply();
+        return texture;
+    }
 }

@@ -152,6 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43e889ae0959e427abd66e57f3a90364, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  terrain_selction: 0
+  flower_prefab: {fileID: 6720950363741445337, guid: dcb4beb9937b940209767fa46c49a684, type: 3}
+  tree_prefab: {fileID: 4620017896110722146, guid: 7268c42c4a9664a328e49bf08b6e4f81, type: 3}
 --- !u!4 &367281171
 Transform:
   m_ObjectHideFlags: 0
