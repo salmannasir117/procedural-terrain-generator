@@ -15,7 +15,8 @@ public class MeshGenerator : MonoBehaviour
     public enum Terrain {
         Texture2D,
         snowy,
-        sandy
+        sandy,
+        greyscale
     }
     public Terrain terrain_selction = Terrain.snowy;
 
@@ -24,6 +25,8 @@ public class MeshGenerator : MonoBehaviour
     public GameObject tree_prefab = null;
     public GameObject cactus_prefab = null;
     public GameObject small_cactus_prefab = null;
+    public GameObject greyscale_flower_prefab = null;
+    public GameObject greyscale_tree_prefab = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -76,6 +79,14 @@ public class MeshGenerator : MonoBehaviour
                         float offset = 0.05f;
                         Instantiate(cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
                     }
+                } else if (terrain_selction == Terrain.greyscale) {
+                    if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+                        float offset = 0.05f;
+                        Instantiate(greyscale_flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                    } else if (noise > 1 && Random.value < 0.01) {
+                        float offset = 0.05f;
+                        Instantiate(greyscale_tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                    }
                 }
                 verts[vert_index] = new Vector3(x_index, noise, y_index);
                 uvs[vert_index] = new Vector2(x_index / grid_size, (grid_size - y_index) / grid_size);
@@ -83,8 +94,7 @@ public class MeshGenerator : MonoBehaviour
                 // if (terrain_selction == Terrain.snowy) {
                     colors[vert_index] = get_color(noise);
                 // }
-
-
+                
                 //else, colors is handled in the texture generation part. 
             }
         }
@@ -139,7 +149,7 @@ public class MeshGenerator : MonoBehaviour
         //get the renderer, attach a material that uses a vertex shader 
         //thus, we can color each vertex and it mixes the colors. 
         //note: this method is an alternative to using a texture 2D and potentially allows for a different gradient of colors to be made
-        if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.sandy) {
+        if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.sandy || terrain_selction == Terrain.greyscale) {
             Material material = new Material(Shader.Find("Particles/Standard Surface"));
             rend.material = material;
         }
@@ -147,7 +157,7 @@ public class MeshGenerator : MonoBehaviour
             Texture2D texture = make_a_texture(mesh);
             // rend.material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
             rend.material.mainTexture = texture;
-        }
+        } 
         // // random color
         // rend.material.color = new Color(Random.value, Random.value, Random.value, 1.0f);
         // rend.material.color = new Color(0,0,1);
@@ -190,6 +200,10 @@ public class MeshGenerator : MonoBehaviour
             Color low = new Color(150, 114, 22) / 255.0f;
             Color high = new Color(228, 214, 172) / 255.0f;
             return Color.Lerp(low, high, x - 0.3f);
+        } else if (terrain_selction == Terrain.greyscale) {
+            // x -= 0.4f;
+            x = 1 - x;
+            return new Color(x,x,x);
         }
         return Color.clear; //error case
     }

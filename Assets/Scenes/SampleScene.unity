@@ -152,11 +152,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43e889ae0959e427abd66e57f3a90364, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrain_selction: 2
+  terrain_selction: 3
   flower_prefab: {fileID: 6720950363741445337, guid: dcb4beb9937b940209767fa46c49a684, type: 3}
   tree_prefab: {fileID: 4620017896110722146, guid: 7268c42c4a9664a328e49bf08b6e4f81, type: 3}
   cactus_prefab: {fileID: 2552397958995339397, guid: ddbbab318747a4621b1cc3208b15f0a4, type: 3}
   small_cactus_prefab: {fileID: 3057640397330892536, guid: 21a5d05e3d30d4e4cb153bb3d2d68277, type: 3}
+  greyscale_flower_prefab: {fileID: 6720950363741445337, guid: 359f8831d7bc4486daf9bfea71fe42a6, type: 3}
+  greyscale_tree_prefab: {fileID: 4620017896110722146, guid: d35dce5f2d1f84d49aab9a7d889992a5, type: 3}
 --- !u!4 &367281171
 Transform:
   m_ObjectHideFlags: 0
