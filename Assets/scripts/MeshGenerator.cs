@@ -41,6 +41,53 @@ public class MeshGenerator : MonoBehaviour
         
     }
 
+    private void place_plant(float x_index, float noise, float y_index) {
+        GameObject low_plant = null, high_plant = null;
+        float offset = 0.05f;
+        if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D) {
+            low_plant = flower_prefab;
+            high_plant = tree_prefab;
+        } else if (terrain_selction == Terrain.sandy) {
+            low_plant = small_cactus_prefab;
+            high_plant = cactus_prefab;
+        } else if (terrain_selction == Terrain.greyscale) {
+            low_plant = greyscale_flower_prefab;
+            high_plant = greyscale_tree_prefab;
+        }
+
+        if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+            Instantiate(low_plant, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+        } else if (noise > 1 && Random.value < 0.01) {
+           Instantiate(high_plant, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+        }
+
+        //place plants with grassland plants
+        // if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D) {
+        //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+        //         float offset = 0.05f;
+        //         Instantiate(flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+        //     } else if (noise > 1 && Random.value < 0.01) {
+        //         float offset = 0.05f;
+        //         Instantiate(tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+        //     }
+        // } else if (terrain_selction == Terrain.sandy) {
+        //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+        //         float offset = 0.05f;
+        //         Instantiate(small_cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+        //     } else if (noise > 1 && Random.value < 0.01) {
+        //         float offset = 0.05f;
+        //         Instantiate(cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+        //     }
+        // } else if (terrain_selction == Terrain.greyscale) {
+        //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+        //         float offset = 0.05f;
+        //         Instantiate(greyscale_flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+        //     } else if (noise > 1 && Random.value < 0.01) {
+        //         float offset = 0.05f;
+        //         Instantiate(greyscale_tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+        //     }
+        // }
+    }
     private Mesh create_plane(float grid_size, int grid_verts_per_side) {
         Vector3[] verts = new Vector3[grid_verts_per_side * grid_verts_per_side];  	// the vertices of the mesh
 	    int[] tris = new int[(2 * (grid_verts_per_side - 1) * (grid_verts_per_side - 1)) * 3];      	// the triangles of the mesh (triplets of integer references to vertices)
@@ -63,31 +110,33 @@ public class MeshGenerator : MonoBehaviour
                 float noise = get_perlin_noise(x_index, y_index, x_offset, y_offset);
                 
                 //place plants with grassland plants
-                if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D) {
-                    if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
-                        float offset = 0.05f;
-                        Instantiate(flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                    } else if (noise > 1 && Random.value < 0.01) {
-                        float offset = 0.05f;
-                        Instantiate(tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                    }
-                } else if (terrain_selction == Terrain.sandy) {
-                    if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
-                        float offset = 0.05f;
-                        Instantiate(small_cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                    } else if (noise > 1 && Random.value < 0.01) {
-                        float offset = 0.05f;
-                        Instantiate(cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                    }
-                } else if (terrain_selction == Terrain.greyscale) {
-                    if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
-                        float offset = 0.05f;
-                        Instantiate(greyscale_flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                    } else if (noise > 1 && Random.value < 0.01) {
-                        float offset = 0.05f;
-                        Instantiate(greyscale_tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
-                    }
-                }
+                // if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D) {
+                //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+                //         float offset = 0.05f;
+                //         Instantiate(flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                //     } else if (noise > 1 && Random.value < 0.01) {
+                //         float offset = 0.05f;
+                //         Instantiate(tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                //     }
+                // } else if (terrain_selction == Terrain.sandy) {
+                //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+                //         float offset = 0.05f;
+                //         Instantiate(small_cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                //     } else if (noise > 1 && Random.value < 0.01) {
+                //         float offset = 0.05f;
+                //         Instantiate(cactus_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                //     }
+                // } else if (terrain_selction == Terrain.greyscale) {
+                //     if (noise > 0.1 && noise < 0.5 && Random.value < 0.1) {
+                //         float offset = 0.05f;
+                //         Instantiate(greyscale_flower_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                //     } else if (noise > 1 && Random.value < 0.01) {
+                //         float offset = 0.05f;
+                //         Instantiate(greyscale_tree_prefab, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
+                //     }
+                // }
+
+                place_plant(x_index, noise, y_index);
                 verts[vert_index] = new Vector3(x_index, noise, y_index);
                 uvs[vert_index] = new Vector2(x_index / grid_size, (grid_size - y_index) / grid_size);
                 
