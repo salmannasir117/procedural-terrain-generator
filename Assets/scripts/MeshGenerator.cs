@@ -11,7 +11,7 @@ public class MeshGenerator : MonoBehaviour
 {
     int x_offset = 1000, y_offset = 1000; 
     private int grid_verts_per_side = 85;
-    private float grid_size = 10;
+    private float grid_size = 10.0f;
     
     public enum Terrain {
         Texture2D,
@@ -20,7 +20,7 @@ public class MeshGenerator : MonoBehaviour
         greyscale,
         greenland
     }
-    public Terrain terrain_selction = Terrain.snowy;
+    public Terrain terrain_selection = Terrain.snowy;
 
     //https://docs.unity3d.com/Manual/InstantiatingPrefabs.html
     
@@ -30,11 +30,14 @@ public class MeshGenerator : MonoBehaviour
     public GameObject cactus_prefab = null, small_cactus_prefab = null;
     //greyscale plants
     public GameObject greyscale_flower_prefab = null, greyscale_tree_prefab = null;
-    
+    //camera moves in xz plane
+    float left_bound, right_bound, top_bound, bottom_bound;
+
     // Start is called before the first frame update
     void Start()
     {
-        Mesh m = create_plane(grid_size, grid_verts_per_side);
+        left_bound = 0; right_bound = grid_size; top_bound = grid_size; bottom_bound = -grid_size;
+        Mesh m = create_plane(grid_size, grid_verts_per_side, 0, 0);
         // perlin_noise(m, grid_verts_per_side, grid_size, 0, 0);
         mesh_to_game_object(m);
     }
@@ -42,7 +45,27 @@ public class MeshGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        Vector3 cam_pos = Camera.main.transform.position;
+        float magic_offset = grid_size / grid_verts_per_side;
+        // if the camera has moved far enough, create another plane
+		if (cam_pos.z > (top_bound) - grid_size / 2) {
+			GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, 0, top_bound - magic_offset));
+            temp.transform.position = new Vector3(0, 0, 0);
+            top_bound += grid_size;
+		} 
+        else if (cam_pos.z < bottom_bound + grid_size / 2) {
+            GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, 0, bottom_bound + magic_offset));
+            temp.transform.position = new Vector3(0, 0, 0);
+            bottom_bound -= grid_size;
+        } else if (cam_pos.x > right_bound - grid_size / 2) {
+            GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, right_bound - magic_offset, top_bound - magic_offset));
+            temp.transform.position = new Vector3(0, 0, 0);
+            right_bound += grid_size;
+        } else if (cam_pos.x < left_bound + grid_size / 2) {
+            GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, left_bound + magic_offset, top_bound - magic_offset));
+            temp.transform.position = new Vector3(0, 0, 0);
+            left_bound -= grid_size;
+        }
     }
 
     //method used to place plants based on the selected terrain mode.
@@ -53,13 +76,13 @@ public class MeshGenerator : MonoBehaviour
         float offset = 0.05f;   //offset used to raise the plants to ground level.
         
         // set the low and high plants based on the biome selected
-        if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D || terrain_selction == Terrain.greenland) {
+        if (terrain_selection == Terrain.snowy || terrain_selection == Terrain.Texture2D || terrain_selection == Terrain.greenland) {
             low_plant = flower_prefab;
             high_plant = tree_prefab;
-        } else if (terrain_selction == Terrain.sandy) {
+        } else if (terrain_selection == Terrain.sandy) {
             low_plant = small_cactus_prefab;
             high_plant = cactus_prefab;
-        } else if (terrain_selction == Terrain.greyscale) {
+        } else if (terrain_selection == Terrain.greyscale) {
             low_plant = greyscale_flower_prefab;
             high_plant = greyscale_tree_prefab;
         }
@@ -72,7 +95,7 @@ public class MeshGenerator : MonoBehaviour
            Instantiate(high_plant, new Vector3(x_index, noise + offset, y_index), Quaternion.identity);
         }
     }
-    private Mesh create_plane(float grid_size, int grid_verts_per_side) {
+    private Mesh create_plane(float grid_size, int grid_verts_per_side, float x_off, float y_off) {
         Vector3[] verts = new Vector3[grid_verts_per_side * grid_verts_per_side];  	// the vertices of the mesh
 	    int[] tris = new int[(2 * (grid_verts_per_side - 1) * (grid_verts_per_side - 1)) * 3];      	// the triangles of the mesh (triplets of integer references to vertices)
 	    Mesh mesh = new Mesh();
@@ -87,8 +110,8 @@ public class MeshGenerator : MonoBehaviour
         for (int i = 0; i < grid_verts_per_side ; i++) {
             for (int j = 0; j < grid_verts_per_side; j++) {
                 int vert_index = i * grid_verts_per_side + j;
-                float x_index = grid_size / grid_verts_per_side * i;
-                float y_index = grid_size / grid_verts_per_side * j;
+                float x_index = grid_size / grid_verts_per_side * i + x_off;
+                float y_index = grid_size / grid_verts_per_side * j + y_off;
                 // verts[vert_index] = new Vector3(x_index, y_index, 0);
                 
                 float noise = get_perlin_noise(x_index, y_index, x_offset, y_offset);
@@ -149,7 +172,7 @@ public class MeshGenerator : MonoBehaviour
         //get the renderer, attach a material that uses a vertex shader 
         //thus, we can color each vertex and it mixes the colors. 
         //note: this method is an alternative to using a texture 2D and potentially allows for a different gradient of colors to be made
-        if (terrain_selction == Terrain.Texture2D) {
+        if (terrain_selection == Terrain.Texture2D) {
             Texture2D texture = make_a_texture(mesh);
             // rend.material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
             rend.material.mainTexture = texture;
@@ -191,20 +214,20 @@ public class MeshGenerator : MonoBehaviour
     Color get_color(float x) {
         
         //spooky coloring below
-        if (terrain_selction == Terrain.snowy || terrain_selction == Terrain.Texture2D) {
+        if (terrain_selection == Terrain.snowy || terrain_selection == Terrain.Texture2D) {
             if (x > 10.0f / 10) return Color.white;
             else if (x  > 2.5 / 10.0f) return new Color(25, 25, 25) / 255.0f;   //dark grey
             else if (x > 0.5 /10.0f) return Color.red;
             else return Color.green;
-        } else if (terrain_selction == Terrain.sandy) {     //sand biome
+        } else if (terrain_selection == Terrain.sandy) {     //sand biome
             Color low = new Color(150, 114, 22) / 255.0f;
             Color high = new Color(228, 214, 172) / 255.0f;
             return Color.Lerp(low, high, x - 0.3f);
-        } else if (terrain_selction == Terrain.greyscale) {
+        } else if (terrain_selection == Terrain.greyscale) {
             // x -= 0.4f;
             x = 1 - x;
             return new Color(x,x,x);
-        } else if (terrain_selction == Terrain.greenland) {
+        } else if (terrain_selection == Terrain.greenland) {
             // Color brown = new Color(168, 81, 3) / 255.0f;
             Color brown = new Color(101, 78, 44) / 255.0f;
             // Color green = new Color(99, 180, 0) / 255.0f;
