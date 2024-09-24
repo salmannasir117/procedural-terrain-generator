@@ -48,7 +48,9 @@ public class MeshGenerator : MonoBehaviour
         Vector3 cam_pos = Camera.main.transform.position;
         float magic_offset = grid_size / grid_verts_per_side;
         // if the camera has moved far enough, create another plane
-		if (cam_pos.z > (top_bound) - grid_size / 2) {
+		if (cam_pos.z > (top_bound) - grid_size / 2) {  //generate new top row from left_bonud to right bound. use mod grid_size
+        //or, put them in 2d array and use int. div and mod to determine which cell u are in.
+        //int divide by grid_size, check if generated. if not, generate. (use mod to snap back to grid??) floor(pos/grid_size) * grid_size??
 			GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, 0, top_bound - magic_offset));
             temp.transform.position = new Vector3(0, 0, 0);
             top_bound += grid_size;
@@ -57,7 +59,7 @@ public class MeshGenerator : MonoBehaviour
             GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, 0, bottom_bound + magic_offset));
             temp.transform.position = new Vector3(0, 0, 0);
             bottom_bound -= grid_size;
-        } else if (cam_pos.x > right_bound - grid_size / 2) {
+        } else if (cam_pos.x > right_bound - grid_size / 2) { //generate new right col. from bottom to top
             GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, right_bound - magic_offset, top_bound - magic_offset));
             temp.transform.position = new Vector3(0, 0, 0);
             right_bound += grid_size;
@@ -288,11 +290,11 @@ public class MeshGenerator : MonoBehaviour
         Texture2D texture = new Texture2D(len, len);
         // Color[] colors = new Color[len * len];
 
-        for (int i = 0; i < uvs.Length; i++)
-        {
-            uvs[i] = new Vector2((vertices[i].x) / grid_size, (grid_size - vertices[i].z) / grid_size);
-            // colors[i] = get_color(vertices[i].y);
-        }
+        // for (int i = 0; i < uvs.Length; i++)
+        // {
+        //     uvs[i] = new Vector2((vertices[i].x) / grid_size, (grid_size - vertices[i].z) / grid_size);
+        //     // colors[i] = get_color(vertices[i].y);
+        // }
         // mesh.uv = uvs;
         // mesh.RecalculateNormals();
 
@@ -312,7 +314,14 @@ public class MeshGenerator : MonoBehaviour
         //     }
         // }
 
-        texture.SetPixels(mesh.colors);
+        Color[] colors = new Color[mesh.vertices.Length];
+
+        for (int i = 0; i < colors.Length; i++) {
+            // colors[i] = new Color(vertices[i].x, vertices[i].y, vertices[i].z);
+            colors[i] = new Color(0.25f, 0.25f, vertices[i].y / 2.5f + 0.25f);
+        }
+        // texture.SetPixels(mesh.colors);
+        texture.SetPixels(colors);
         texture.Apply();
         return texture;
     }
