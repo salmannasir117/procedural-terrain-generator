@@ -30,6 +30,7 @@ public class MeshGenerator : MonoBehaviour
     public GameObject cactus_prefab = null, small_cactus_prefab = null;
     //greyscale plants
     public GameObject greyscale_flower_prefab = null, greyscale_tree_prefab = null;
+    public int octaves = 3;
     //camera moves in xz plane
     float left_bound, right_bound, top_bound, bottom_bound;
 
@@ -206,9 +207,17 @@ public class MeshGenerator : MonoBehaviour
     // }
 
     float get_perlin_noise(float x, float y, float x_offset, float y_offset) {
-        return Mathf.PerlinNoise(x + x_offset , y + y_offset) 
-        + 1.0f / 2 * Mathf.PerlinNoise(2 * x + x_offset, 2 * y + y_offset) 
-        + 1.0f / 4 * Mathf.PerlinNoise( 4 * x + x_offset, 4 * y + y_offset);
+        float total = 0.00f;
+        int pow = 1;
+        for (int i = 0; i < octaves; i++) {
+            total += 1.0f / pow * Mathf.PerlinNoise(pow * x + x_offset, pow * y + y_offset);
+            pow *= 2;
+        }
+
+        return total;
+        // return Mathf.PerlinNoise(x + x_offset , y + y_offset) 
+        // + 1.0f / 2 * Mathf.PerlinNoise(2 * x + x_offset, 2 * y + y_offset) 
+        // + 1.0f / 4 * Mathf.PerlinNoise( 4 * x + x_offset, 4 * y + y_offset);
     }
 
     //for some reason, the heights are super high. this is wehre we assign color based on height
