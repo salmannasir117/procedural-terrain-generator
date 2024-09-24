@@ -11,7 +11,7 @@ public class MeshGenerator : MonoBehaviour
 {
     int x_offset = 1000, y_offset = 1000; 
     private int grid_verts_per_side = 85;
-    private float grid_size = 10.0f;
+    private float grid_size = 8.5f;
     
     public enum Terrain {
         Texture2D,
@@ -20,56 +20,82 @@ public class MeshGenerator : MonoBehaviour
         greyscale,
         greenland
     }
+    //parameter for terrain selection. Options are from the above enum. 
     public Terrain terrain_selection = Terrain.snowy;
+    
+    //number of octaves to use for Perlin noise. 
+    //Note that number of octaves above 3 seem to look similar. 
+    //octaves 1 and 2 look drastically different.
     public int octaves = 3;
+    
+    //seed influences the generation of plants on the terrain.
     public int seed = 0;
 
     //https://docs.unity3d.com/Manual/InstantiatingPrefabs.html
     
     //Texture2D/snowy biome plants
     public GameObject flower_prefab = null, tree_prefab = null;
+    
     //sany biome plants
     public GameObject cactus_prefab = null, small_cactus_prefab = null;
+    
     //greyscale plants
     public GameObject greyscale_flower_prefab = null, greyscale_tree_prefab = null;
     
     //camera moves in xz plane
     float left_bound, right_bound, top_bound, bottom_bound;
+    int max_rows = 51, max_cols = 51;
+    bool[][] generated;
 
     // Start is called before the first frame update
     void Start()
     {
         Random.InitState(seed);
         left_bound = 0; right_bound = grid_size; top_bound = grid_size; bottom_bound = -grid_size;
+        generated = new bool[max_rows][];
+        
+        
+        for (int i = 0; i < max_rows; i++) {
+            generated[i] = new bool[max_cols];
+            for (int j = 0; j < max_cols; j++) {
+                generated[i][j] = false;
+            }
+        }
+        
         Mesh m = create_plane(grid_size, grid_verts_per_side, 0, 0);
         // perlin_noise(m, grid_verts_per_side, grid_size, 0, 0);
         mesh_to_game_object(m);
+        generated[max_rows/2][max_cols/2] = true;   //first one in center
+        //make method to map x,z coordinate to cell in generated
+        //probably use mod and int div and max_rows/2 as offset.
     }
 
     // Update is called once per frame
     void Update()
     {
         Vector3 cam_pos = Camera.main.transform.position;
-        float magic_offset = grid_size / grid_verts_per_side;
+        // float magic_offset = grid_size / grid_verts_per_side;
+        float magic_offset = 0.5f;
+
         // if the camera has moved far enough, create another plane
 		if (cam_pos.z > (top_bound) - grid_size / 2) {  //generate new top row from left_bonud to right bound. use mod grid_size
         //or, put them in 2d array and use int. div and mod to determine which cell u are in.
         //int divide by grid_size, check if generated. if not, generate. (use mod to snap back to grid??) floor(pos/grid_size) * grid_size??
 			GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, 0, top_bound - magic_offset));
-            temp.transform.position = new Vector3(0, 0, 0);
+            // temp.transform.position = new Vector3(0, 0, 0);
             top_bound += grid_size;
 		} 
         else if (cam_pos.z < bottom_bound + grid_size / 2) {
             GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, 0, bottom_bound + magic_offset));
-            temp.transform.position = new Vector3(0, 0, 0);
+            // temp.transform.position = new Vector3(0, 0, 0);
             bottom_bound -= grid_size;
         } else if (cam_pos.x > right_bound - grid_size / 2) { //generate new right col. from bottom to top
             GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, right_bound - magic_offset, top_bound - magic_offset));
-            temp.transform.position = new Vector3(0, 0, 0);
+            // temp.transform.position = new Vector3(0, 0, 0);
             right_bound += grid_size;
         } else if (cam_pos.x < left_bound + grid_size / 2) {
             GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, left_bound + magic_offset, top_bound - magic_offset));
-            temp.transform.position = new Vector3(0, 0, 0);
+            // temp.transform.position = new Vector3(0, 0, 0);
             left_bound -= grid_size;
         }
     }
@@ -102,8 +128,10 @@ public class MeshGenerator : MonoBehaviour
         }
     }
     private Mesh create_plane(float grid_size, int grid_verts_per_side, float x_off, float y_off) {
-        Vector3[] verts = new Vector3[grid_verts_per_side * grid_verts_per_side];  	// the vertices of the mesh
-	    int[] tris = new int[(2 * (grid_verts_per_side - 1) * (grid_verts_per_side - 1)) * 3];      	// the triangles of the mesh (triplets of integer references to vertices)
+        //modify to add a row and column 
+        //currently, 
+        Vector3[] verts = new Vector3[(grid_verts_per_side + 1) * (grid_verts_per_side + 1)];  	// the vertices of the mesh
+	    int[] tris = new int[(2 * (grid_verts_per_side ) * (grid_verts_per_side)) * 3];      	// the triangles of the mesh (triplets of integer references to vertices)
 	    Mesh mesh = new Mesh();
         Color[] colors = null;
         Vector2[] uvs = new Vector2[verts.Length];
@@ -113,8 +141,8 @@ public class MeshGenerator : MonoBehaviour
         // }
 
         //generate the verticies for the plane
-        for (int i = 0; i < grid_verts_per_side ; i++) {
-            for (int j = 0; j < grid_verts_per_side; j++) {
+        for (int i = 0; i <= grid_verts_per_side ; i++) {
+            for (int j = 0; j <= grid_verts_per_side; j++) {
                 int vert_index = i * grid_verts_per_side + j;
                 float x_index = grid_size / grid_verts_per_side * i + x_off;
                 float y_index = grid_size / grid_verts_per_side * j + y_off;
@@ -135,8 +163,9 @@ public class MeshGenerator : MonoBehaviour
         }
 
         int ntris = 0;
-        for (int i = 0; i < verts.Length - 1 - grid_verts_per_side - 1; i++) {
-            if (i % (grid_verts_per_side) != grid_verts_per_side - 1 || i == 0) {
+        //set bound on i so that it stops before the second row
+        for (int i = 0; i < verts.Length - (grid_verts_per_side + 1) - 1; i++) {
+            if (i % (grid_verts_per_side) != 0 || i == 0) {
                 int tl, tr, bl, br;
                 tl = i;
                 tr = i + 1;
