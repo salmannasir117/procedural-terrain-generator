@@ -21,6 +21,8 @@ public class MeshGenerator : MonoBehaviour
         greenland
     }
     public Terrain terrain_selection = Terrain.snowy;
+    public int octaves = 3;
+    public int seed = 0;
 
     //https://docs.unity3d.com/Manual/InstantiatingPrefabs.html
     
@@ -30,13 +32,14 @@ public class MeshGenerator : MonoBehaviour
     public GameObject cactus_prefab = null, small_cactus_prefab = null;
     //greyscale plants
     public GameObject greyscale_flower_prefab = null, greyscale_tree_prefab = null;
-    public int octaves = 3;
+    
     //camera moves in xz plane
     float left_bound, right_bound, top_bound, bottom_bound;
 
     // Start is called before the first frame update
     void Start()
     {
+        Random.InitState(seed);
         left_bound = 0; right_bound = grid_size; top_bound = grid_size; bottom_bound = -grid_size;
         Mesh m = create_plane(grid_size, grid_verts_per_side, 0, 0);
         // perlin_noise(m, grid_verts_per_side, grid_size, 0, 0);
