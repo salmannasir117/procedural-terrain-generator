@@ -95,10 +95,17 @@ public class MeshGenerator : MonoBehaviour
         //     temp.transform.position = new Vector3(0, 0, 0);
         //     left_bound -= grid_size;
         // }
-        int x = (int) Mathf.Floor(cam_pos.x / grid_size) ;
-        int z = (int) Mathf.Floor(cam_pos.z / grid_size) ;
-        if (x < max_rows && z < max_cols && generated[x][z] == false) {
-            GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, x * grid_size, z * grid_size));
+        int x = (int) Mathf.Floor(cam_pos.x / grid_size) + max_rows / 2;
+        int z = (int) Mathf.Floor(cam_pos.z / grid_size) + max_cols / 2;
+
+        float hitbox_offset = 2f;
+        // int x_bound = (int) Mathf.Floor(cam_pos.x + hitbox_offset / grid_size) ;
+        // int z_bound = (int) Mathf.Floor(cam_pos.z + hitbox_offset/ grid_size) ;
+
+        if (x >= 0 && z >= 0 && x < max_rows && z < max_cols && generated[x][z] == false) {
+            int x_coord = (int) Mathf.Floor(cam_pos.x / grid_size);
+            int z_coord = (int) Mathf.Floor(cam_pos.z / grid_size);
+            GameObject temp = mesh_to_game_object(create_plane(grid_size, grid_verts_per_side, x_coord * grid_size, z_coord * grid_size));
             generated[x][z] = true;
         }
 
