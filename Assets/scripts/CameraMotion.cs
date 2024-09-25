@@ -14,6 +14,7 @@ public class CameraMotion : MonoBehaviour {
     void Start () {
         // start with one plane
         // create_new_plane(0); 
+        if (Camera.main != null) Camera.main.transform.Rotate(new Vector3(45, 0, 0));
     }
     
     // move the camera, and perhaps create a new plane
@@ -39,9 +40,11 @@ public class CameraMotion : MonoBehaviour {
         // move the camera based on keyboard input
         if (temp != null) {
             // translate forward or backwards
-            temp.transform.Translate (0, 0, dz * translate_factor);
+            temp.transform.Translate (0, dz * translate_factor, dz * translate_factor);
+            
             // rotate left or right
-            temp.transform.Rotate (0, dx * rotate_factor, 0);
+            // temp.transform.Rotate (0, dx * rotate_factor, 0);
+            temp.transform.Rotate(new Vector3(0, 1, 0), dx * 0.25f, Space.World);
         }
         
         // get the main camera position
