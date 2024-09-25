@@ -22,7 +22,7 @@ public class CameraMotion : MonoBehaviour {
         // sensitivity factors for translate and rotate
         //originally 0.3f and 5.0f
         float translate_factor = 0.03f;
-        float rotate_factor = .50f;
+        float rotate_factor = .25f;
         
 
         Camera cam = Camera.main;
@@ -33,7 +33,7 @@ public class CameraMotion : MonoBehaviour {
             cam.transform.Translate (0, dz * translate_factor, dz * translate_factor);
             
             // rotate left or right
-            cam.transform.Rotate(new Vector3(0, 1, 0), dx * 0.25f, Space.World);
+            cam.transform.Rotate(new Vector3(0, 1, 0), dx * rotate_factor, Space.World);
         }
     }
 }
